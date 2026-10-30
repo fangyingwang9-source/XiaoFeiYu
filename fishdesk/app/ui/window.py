@@ -11,6 +11,7 @@ from ..services.bridge import BridgeService
 from ..services.power import PowerService
 from ..services.stats import StatsService
 from ..plugins import load_plugins, pages_for
+from ..persona_profile import sync_persona
 from . import theme
 from .widgets import ghost_button
 
@@ -49,8 +50,8 @@ class MainWindow(ctk.CTk):
         self._toast_label = None
 
         self.title(paths.APP_TITLE)
-        self.geometry("1180x760")
-        self.minsize(1024, 660)
+        self.geometry("1180x812")
+        self.minsize(1024, 700)
         self.configure(fg_color=theme.BG)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -64,6 +65,10 @@ class MainWindow(ctk.CTk):
         if self.specs:
             self.show(self.specs[0].key)
         self.protocol("WM_DELETE_WINDOW", self._on_close)
+        try:
+            sync_persona(self.ws, self.store.data, force=False)
+        except Exception:
+            pass
         self.after(1200, self._poll)
 
     # ---------- 侧栏 ----------
@@ -184,6 +189,10 @@ class MainWindow(ctk.CTk):
         try:
             if self.store.poll():
                 self.ctx.cfg = self.store.data
+                try:
+                    sync_persona(self.ws, self.store.data, force=False)
+                except Exception:
+                    pass
                 for p in self._instances.values():
                     fn = getattr(p, "on_config_reload", None)
                     if fn:

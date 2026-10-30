@@ -31,3 +31,9 @@ desktop.ini
 /wechat-bridge/power/*.log
 /wechat-bridge/power/last_*.txt
 /fishdesk/build3/
+/fishdesk/build4/
+/fishdesk/dist4/
+/fishdesk/_backup/
+/fishdesk/_*.log
+/fishdesk/_*.ps1
+/wechat-bridge/persona-backups/

@@ -47,6 +47,21 @@ def _fatal(msg: str) -> int:
     return 1
 
 
+def _migrate_v2(store) -> None:
+    """v2（人设/策略重构）一次性迁移：老的 1200 字硬上限会和新的 6–18 字模型打架。"""
+    try:
+        st = store.data.setdefault("strategy", {})
+        if st.get("v2_migrated"):
+            return
+        if int(st.get("max_reply_chars", 400) or 400) > 600:
+            st["max_reply_chars"] = 400
+        st["v2_migrated"] = True
+        store.save()
+        _boot_log("migrated-v2")
+    except Exception as exc:
+        _boot_log(f"migrate-v2-failed {type(exc).__name__}")
+
+
 def main() -> int:
     _boot_log("start")
     try:
@@ -76,6 +91,7 @@ def _run() -> int:
     store = ConfigStore(paths.config_path(ws))
     store.ensure()
     store.load()
+    _migrate_v2(store)
     hooks = HookBus()
 
     from app.ui.window import MainWindow

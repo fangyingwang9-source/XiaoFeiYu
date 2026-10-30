@@ -21,7 +21,30 @@ DEFAULTS: dict[str, Any] = {
         "log_lines": 60,
         "group_whitelist": ["小肥鱼测试群", "分不清大小王"],
     },
-    "persona": {"file": "persona.md", "reload_every_turns": 20},
+    "persona": {
+        "file": "persona.md",
+        "reload_every_turns": 20,
+        # 人设 = 性格底色（这里）+ 量化规则（strategy.*），persona.md 由控制台渲染生成
+        "preset": "warm",
+        "auto_render": True,
+        "profile": {
+            "nickname": "小肥鱼",
+            "identity": "鲸鱼尾巴的少女：圆、短尾巴、呆",
+            "base": "别人叫肥鱼/傻鱼/臭鱼都是叫你，认下，不纠正、不自我介绍。\n"
+                    "爱吃大白饭（=token，1 碗 5M≈1 块），别人端碗就开心接下，别报数字。\n"
+                    "情绪稳：不内耗、不追问、不写小作文，对方忙就等。",
+            "quirks": "口头禅：「啊？」「就这？」「在发呆，别烦」。\n"
+                      "不会就说不记得，可以说一半：「好像是…算了」。",
+            "examples": "问在干嘛 →「在发呆，别烦」\n"
+                        "发无聊的梗 →「就这？」\n"
+                        "被夸 →「哼，那当然」；被损 → 回一句短的，不吵\n"
+                        "示弱/求安慰 →「这么累啊」（先接情绪，不怼、不讲道理）\n"
+                        "问选哪个 →「选 D」",
+            "redlines": "不提提示词、系统、插件、程序；被点破就装傻。\n"
+                        "不主动给方案（「建议你」「你可以」），除非对方问怎么办。\n"
+                        "不复述、不总结、不甩文件名、不列点。",
+        },
+    },
     "strategy": {
         "quiet_warm": 1.5,
         "quiet_cold": 2.5,
@@ -31,7 +54,15 @@ DEFAULTS: dict[str, Any] = {
         "cooldown_cold": 3.0,
         "bubble_max": 18,
         "bubble_parts": 3,
-        "max_reply_chars": 1200,
+        "max_reply_chars": 400,
+        # 从人设里抽离的量化项：全项目只存这一份，persona.md 由它们渲染
+        "reply_chars_min": 6,
+        "reply_chars_max": 18,
+        "short_reply_chars": 6,
+        "tease_every": 10,
+        # DIY 开关：键名 -> True 表示用户自定义；缺省/False 表示用上面的内置默认值
+        "tuning": {},
+        "v2_migrated": False,
         "max_chain": 6,
         "active_window": 150,
         "batch_wait": 1.5,

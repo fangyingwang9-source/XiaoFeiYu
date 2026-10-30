@@ -187,11 +187,20 @@ class BridgeService:
             return False, "找不到 Python 解释器：请在「高级设置」里填写 wxauto venv 的 python.exe"
         if not self.script.is_file():
             return False, f"找不到桥脚本：{self.script}"
+        # 优先用同目录的 pythonw.exe：它是 GUI 子系统程序，Windows 保证不会为它创建控制台
+        # （CREATE_NO_WINDOW 只对 python.exe 生效，万一 manifest/父进程是控制台仍可能闪黑窗）
+        launcher = py
+        try:
+            pw = Path(py).with_name("pythonw.exe")
+            if pw.is_file():
+                launcher = str(pw)
+        except Exception:
+            pass
         env = dict(os.environ)
         env["STICKER_ENABLED"] = "1" if sticker_enabled else "0"
         env["PYTHONIOENCODING"] = "utf-8"
         env["PYTHONUTF8"] = "1"
-        cmd = [py, "-u", str(self.script)]
+        cmd = [launcher, "-u", str(self.script)]
         if dry_run:
             cmd.append("--dry-run")
         try:
