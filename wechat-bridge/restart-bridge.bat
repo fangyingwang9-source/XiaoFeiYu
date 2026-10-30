@@ -1,8 +1,7 @@
 @echo off
-rem Restart the WeChat bridge (waits for the pending reply, then kills + relaunches hidden).
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0restart-bridge.ps1"
-if exist "%~dp0restart-need-admin.flag" (
-  del "%~dp0restart-need-admin.flag" >nul 2>&1
-  powershell.exe -NoProfile -Command "Start-Process -FilePath '%~dp0restart-bridge-admin.bat' -Verb RunAs"
-)
+rem 手动重启入口：转给 pythonw 的 restart_bridge.py（无控制台、无 UAC）。
+rem 桥自重启已改为直接起 pythonw restart_bridge.py，不再经过本脚本。
+set "PYW=C:\Users\one\.dsh\wxauto\venv\Scripts\pythonw.exe"
+if not exist "%PYW%" set "PYW=pythonw.exe"
+start "" /B "%PYW%" "%~dp0restart_bridge.py" %*
 exit /b 0

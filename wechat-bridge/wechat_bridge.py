@@ -1591,14 +1591,22 @@ def _spawn_power_sleep(reason: str, delay: int = 4) -> None:
 def _spawn_self_restart(delay: int = 8) -> None:
     """起一个脱离的批处理：等回复发完，杀掉本桥进程再隐藏拉起（换新代码）。"""
     try:
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        si.wShowWindow = 0  # SW_HIDE：兜底；真正的无窗口来自 pythonw + CREATE_NO_WINDOW
+        pyw = Path(sys.executable).with_name("pythonw.exe")
+        if not pyw.exists():
+            pyw = Path(sys.executable)
+        # 不走 cmd/bat：cmd.exe 是控制台程序，Windows Terminal 会为它弹一下黑窗（实测）。
         subprocess.Popen(
-            ["cmd.exe", "/c", str(HERE / "restart-bridge.bat")],
+            [str(pyw), str(HERE / "restart_bridge.py"), str(delay)],
             cwd=str(HERE),
-            creationflags=0x00000008 | 0x00000200,   # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
+            creationflags=0x00000008 | 0x00000200 | 0x08000000,
+            startupinfo=si,
             stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
             close_fds=True,
         )
-        log(f"[power] 已排定重启桥（{delay}s 后由 restart-bridge.bat 执行）")
+        log(f"[power] 已排定重启桥（{delay}s 后由 pythonw restart_bridge.py 静默执行）")
     except Exception as exc:
         log(f"[power] 启动重启脚本失败：{type(exc).__name__}: {exc}")
 
