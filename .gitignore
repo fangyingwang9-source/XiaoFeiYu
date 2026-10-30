@@ -37,3 +37,5 @@ desktop.ini
 /fishdesk/_*.log
 /fishdesk/_*.ps1
 /wechat-bridge/persona-backups/
+/fishdesk/_out.txt
+/fishdesk/_err.txt
