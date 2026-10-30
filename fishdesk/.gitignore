@@ -3,7 +3,9 @@
 __pycache__/
 build/
 dist/
+dist2/
 *.log
+build2.log
 shots/
 rt/
 probe_*.py

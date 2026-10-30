@@ -61,6 +61,14 @@ kernel32.GlobalAlloc.restype = ctypes.c_void_p
 kernel32.GlobalLock.argtypes = [ctypes.c_void_p]
 kernel32.GlobalLock.restype = ctypes.c_void_p
 kernel32.GlobalUnlock.argtypes = [ctypes.c_void_p]
+# 剪贴板备份/恢复用到的三个调用必须显式声明原型：默认 restype 是 C int，
+# 64 位下句柄会被截断，GlobalLock 拿到 0，于是“快照永远为空、恢复永远失败”。
+user32.GetClipboardData.argtypes = [ctypes.c_uint]
+user32.GetClipboardData.restype = ctypes.c_void_p
+user32.EnumClipboardFormats.argtypes = [ctypes.c_uint]
+user32.EnumClipboardFormats.restype = ctypes.c_uint
+kernel32.GlobalSize.argtypes = [ctypes.c_void_p]
+kernel32.GlobalSize.restype = ctypes.c_size_t
 
 SW_RESTORE = 9
 SW_SHOW = 5

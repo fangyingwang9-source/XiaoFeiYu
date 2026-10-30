@@ -9,7 +9,7 @@ import sys
 
 from . import paths
 
-MUTEX_NAME = "Global\\XiaoFeiYuConsole_9F3A1"
+MUTEX_NAME = "Global\\XiaoFeiYuConsole_9F3A1" + os.environ.get("FISHDESK_MUTEX_SUFFIX", "")
 
 
 def is_admin() -> bool:
