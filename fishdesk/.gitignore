@@ -1,0 +1,14 @@
+# 构建产物与本地环境
+.venv/
+__pycache__/
+build/
+dist/
+*.log
+shots/
+rt/
+probe_*.py
+
+# 打包机器相关的调试残留（保留 fishdesk.spec / build.ps1）
+fishdesk_dbg.spec
+fishdesk_dir.spec
+fishdesk_test.spec

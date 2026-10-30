@@ -1,0 +1,38 @@
+# ============================================================================
+# 【任务模式铁律 · 强制】
+# 本文件是"主人的活"跑起来用的叠层。规则正文由 wechat_bridge.py 的 TASK_PROMPT
+# 第 5/6 条注入到模型（注入路径在此处，yml 只是同源备份，改规则请改两边）：
+#   ① 处理复杂任务时，优先编写一次性 Bash/Python 脚本一次跑完，严禁一步一试探地循环跑。
+#   ② 遇到大量长输出，先落盘/截断提取摘要，坚决避免上下文雪崩。
+#   ③ 单个任务 ≤10 步，超出即换脚本化方案；做完只回结论。
+# ============================================================================
+# 微信通道用的精简叠层：只留下"干活必需"的工具，砍掉重工具与技能目录
+# 目的：压低每次模型的系统提示体积，减少每轮 token。
+- id: tool-subagent
+  disabled: true
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent-list-agents
+  disabled: true
+- id: tool-subagent-fork
+  disabled: true
+- id: tool-workflow
+  disabled: true
+- id: skill-filesystem
+  disabled: true
+- id: tool-skill
+  disabled: true
+- id: tool-jobs
+  disabled: true
+- id: tool-web
+  disabled: true
+- id: tool-goal
+  disabled: true
+- id: tool-todo
+  disabled: true
+# 上下文自动压缩：窗口 1M，ratio 就是“占窗口多少”。0.008 ≈ 8k 触发、保留 2k
+# （底噪约 4.8k = 系统提示+人设+日记，必须留出 1.5k 以上余量，否则会每步压缩死循环）
+- id: compaction-basic
+  config:
+    thresholdRatio: 0.008
+    retainTokens: 2000

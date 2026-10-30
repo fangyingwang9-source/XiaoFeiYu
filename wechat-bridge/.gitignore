@@ -1,0 +1,30 @@
+# 运行时产物 / 日志 / 会话数据：不进仓库
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+backups/
+backup-*/
+*.log
+*.log.*
+console.log
+chatlog.jsonl
+digest-*.txt
+outbox*.jsonl
+last_msg_ts.txt
+*.pid
+*.last
+*.alive
+state.json
+*.db
+*.sqlite*
+sessions/
+sessions-archive/
+sessions-trash/
+stickers/files/
+stickers/import*/
+stickers/thumbs/
+
+# 真实配置：含 owner wxid / 本机路径，一律走 config.example.json 模板
+config.json
+power/config.json

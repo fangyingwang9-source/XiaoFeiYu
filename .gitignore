@@ -1,0 +1,32 @@
+# 只跟踪产品代码与开发记录；其余目录（会话、备份、日志、文档草稿）一律不入库
+/*
+!/.gitignore
+!/devlog/
+!/fishdesk/
+!/wechat-bridge/
+
+# 通用垃圾
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+**/venv/
+**/*.log
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# --- 含真实 wxid / 群 id / 聊天内容 / 运行日志的东西，绝不入库 ---
+/wechat-bridge/_peek.py
+/wechat-bridge/diary.md
+/wechat-bridge/incoming/
+/wechat-bridge/*.jsonl
+/wechat-bridge/*.bak-*
+/wechat-bridge/*.orig-*
+/wechat-bridge/旧人设*.md
+/wechat-bridge/wechat-bridge-state.json
+/wechat-bridge/sticker-lock.json
+/wechat-bridge/backups/
+/wechat-bridge/sessions-archive/
+/wechat-bridge/memory/
+/wechat-bridge/power/*.log
+/wechat-bridge/power/last_*.txt

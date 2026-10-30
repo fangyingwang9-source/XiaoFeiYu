@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "schema": 1,
+    "updated_by": "fishdesk"
+  },
+  "identity": {
+    "owner_wxid": "wxid_owner_placeholder",
+    "owner_name": "主人"
+  },
+  "bridge": {
+    "python": "C:\\path\\to\\wxauto\\venv\\Scripts\\python.exe",
+    "auto_start": false,
+    "log_lines": 60,
+    "group_whitelist": [
+      "小肥鱼测试群",
+      "分不清大小王"
+    ]
+  },
+  "persona": {
+    "file": "persona.md",
+    "reload_every_turns": 20
+  },
+  "strategy": {
+    "quiet_warm": 1.5,
+    "quiet_cold": 2.5,
+    "active_max": 6,
+    "active_max_cold": 9,
+    "cooldown": 1.2,
+    "cooldown_cold": 3.0,
+    "bubble_max": 18,
+    "bubble_parts": 3,
+    "max_reply_chars": 1200,
+    "max_chain": 6,
+    "active_window": 150,
+    "batch_wait": 1.5,
+    "sticker_enabled": true,
+    "sticker_every_min": 5,
+    "sticker_every_max": 8,
+    "spam_trigger": 6,
+    "mute": 45,
+    "judge_cooldown": 180
+  },
+  "schedule": {
+    "wake_slots": [
+      "09:00",
+      "20:30"
+    ],
+    "allow_wechat_sleep": true,
+    "sleep_triggers": [
+      "休眠",
+      "睡觉",
+      "睡吧",
+      "去睡"
+    ],
+    "owner_only": true,
+    "idle_sleep_minutes": 30,
+    "input_grace_minutes": 10,
+    "max_defer_minutes": 120,
+    "respect_input": true,
+    "notify_on_wake": true,
+    "greeting_morning": "早安",
+    "greeting_evening": "晚上好"
+  },
+  "advanced": {
+    "diary_enabled": true,
+    "dryrun": false,
+    "token_stats": true,
+    "humanize_log": true,
+    "session_reset_daily": true,
+    "log_level": "info"
+  },
+  "voice": {
+    "enabled": false,
+    "voice_input": false,
+    "voice_output": false,
+    "voice_engine": "none",
+    "asr_model": "",
+    "tts_voice": "",
+    "vad_seconds": 0.8
+  }
+}

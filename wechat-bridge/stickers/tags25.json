@@ -1,0 +1,243 @@
+{
+  "schema": 1,
+  "total": 25,
+  "note": "25 张人工精选（import25/），按场景分组；png_ready=false 的发送时由 sticker_png() 抽首帧转 PNG。桥仍按情绪词挑图，此表用于人工校准与后续 scene 选图。",
+  "labels_requested": [
+    "无语",
+    "开心",
+    "猫猫",
+    "摊手",
+    "疑惑",
+    "晚安",
+    "怼人但可爱"
+  ],
+  "coverage": "无语✅ 开心✅ 疑惑✅（真实情绪里没有猫猫/摊手/晚安；怼人可爱≈生气/搞怪）",
+  "stickers": [
+    {
+      "file": "import25/01_傲娇打人_大肥鱼_12N06_锤.gif",
+      "scene": "傲娇打人",
+      "label": "生气",
+      "when": "被反复戳/调侃，想装凶又不想真翻脸：生气/搞怪 各挑一张，同一段只发一次",
+      "png_ready": false,
+      "size_kb": 1078,
+      "emotion": "生气"
+    },
+    {
+      "file": "import25/02_傲娇打人_大肥鱼_2N02_打你.gif",
+      "scene": "傲娇打人",
+      "label": "生气",
+      "when": "被反复戳/调侃，想装凶又不想真翻脸：生气/搞怪 各挑一张，同一段只发一次",
+      "png_ready": false,
+      "size_kb": 1190,
+      "emotion": "生气"
+    },
+    {
+      "file": "import25/03_傲娇打人_大肥鱼_5N01_喵喵拳.gif",
+      "scene": "傲娇打人",
+      "label": "生气",
+      "when": "被反复戳/调侃，想装凶又不想真翻脸：生气/搞怪 各挑一张，同一段只发一次",
+      "png_ready": true,
+      "size_kb": 773,
+      "emotion": "生气"
+    },
+    {
+      "file": "import25/04_傲娇打人_大肥鱼_EX73_哦啦哦啦.gif",
+      "scene": "傲娇打人",
+      "label": "生气",
+      "when": "被反复戳/调侃，想装凶又不想真翻脸：生气/搞怪 各挑一张，同一段只发一次",
+      "png_ready": false,
+      "size_kb": 891,
+      "emotion": "生气"
+    },
+    {
+      "file": "import25/05_傲娇打人_大肥鱼_5N07_对线.gif",
+      "scene": "傲娇打人",
+      "label": "生气",
+      "when": "被反复戳/调侃，想装凶又不想真翻脸：生气/搞怪 各挑一张，同一段只发一次",
+      "png_ready": false,
+      "size_kb": 540,
+      "emotion": "生气"
+    },
+    {
+      "file": "import25/06_嫌弃无语_大肥鱼_11N03_噫.gif",
+      "scene": "嫌弃无语",
+      "label": "无语",
+      "when": "对方说了离谱话、重复问同一件事，只想甩个眼神时",
+      "png_ready": false,
+      "size_kb": 1370,
+      "emotion": "无语"
+    },
+    {
+      "file": "import25/07_嫌弃无语_大肥鱼_14N01_你这白吃饭的猫.gif",
+      "scene": "嫌弃无语",
+      "label": "无语",
+      "when": "对方说了离谱话、重复问同一件事，只想甩个眼神时",
+      "png_ready": false,
+      "size_kb": 762,
+      "emotion": "无语"
+    },
+    {
+      "file": "import25/08_嫌弃无语_大肥鱼_7N02_黄油.gif",
+      "scene": "嫌弃无语",
+      "label": "无语",
+      "when": "对方说了离谱话、重复问同一件事，只想甩个眼神时",
+      "png_ready": false,
+      "size_kb": 831,
+      "emotion": "无语"
+    },
+    {
+      "file": "import25/09_嫌弃无语_大肥鱼_EX08_被戳戳.gif",
+      "scene": "嫌弃无语",
+      "label": "无语",
+      "when": "对方说了离谱话、重复问同一件事，只想甩个眼神时",
+      "png_ready": false,
+      "size_kb": 1275,
+      "emotion": "无语"
+    },
+    {
+      "file": "import25/10_嫌弃无语_大肥鱼_EX57_有脏东西.gif",
+      "scene": "嫌弃无语",
+      "label": "无语",
+      "when": "对方说了离谱话、重复问同一件事，只想甩个眼神时",
+      "png_ready": false,
+      "size_kb": 1947,
+      "emotion": "无语"
+    },
+    {
+      "file": "import25/11_嘲讽得意_大肥鱼_EX74_木大木大.gif",
+      "scene": "嘲讽得意",
+      "label": "嘲讽",
+      "when": "小赢一局、看穿对方在装、被夸之后顺杆爬一点点",
+      "png_ready": false,
+      "size_kb": 867,
+      "emotion": "嘲讽"
+    },
+    {
+      "file": "import25/12_嘲讽得意_大肥鱼_13N01_掂.gif",
+      "scene": "嘲讽得意",
+      "label": "嘲讽",
+      "when": "小赢一局、看穿对方在装、被夸之后顺杆爬一点点",
+      "png_ready": false,
+      "size_kb": 1028,
+      "emotion": "嘲讽"
+    },
+    {
+      "file": "import25/13_嘲讽得意_大肥鱼_13N10_啧啧啧.gif",
+      "scene": "嘲讽得意",
+      "label": "嘲讽",
+      "when": "小赢一局、看穿对方在装、被夸之后顺杆爬一点点",
+      "png_ready": false,
+      "size_kb": 1029,
+      "emotion": "嘲讽"
+    },
+    {
+      "file": "import25/14_委屈难过_大肥鱼_16N07_委屈哭哭.gif",
+      "scene": "委屈难过",
+      "label": "难过",
+      "when": "被冤枉/被凶，示弱一下马上收回，别连着两天用",
+      "png_ready": false,
+      "size_kb": 996,
+      "emotion": "难过"
+    },
+    {
+      "file": "import25/15_委屈难过_大肥鱼_2N12_呜呜呜.gif",
+      "scene": "委屈难过",
+      "label": "难过",
+      "when": "被冤枉/被凶，示弱一下马上收回，别连着两天用",
+      "png_ready": false,
+      "size_kb": 728,
+      "emotion": "难过"
+    },
+    {
+      "file": "import25/16_委屈难过_大肥鱼_5N03_关监狱.gif",
+      "scene": "委屈难过",
+      "label": "难过",
+      "when": "被冤枉/被凶，示弱一下马上收回，别连着两天用",
+      "png_ready": false,
+      "size_kb": 715,
+      "emotion": "难过"
+    },
+    {
+      "file": "import25/17_委屈难过_大肥鱼_5N12_捏脸.gif",
+      "scene": "委屈难过",
+      "label": "难过",
+      "when": "被冤枉/被凶，示弱一下马上收回，别连着两天用",
+      "png_ready": false,
+      "size_kb": 620,
+      "emotion": "难过"
+    },
+    {
+      "file": "import25/18_开心_大肥鱼_16N01_超开心.gif",
+      "scene": "开心",
+      "label": "开心",
+      "when": "事情顺了、被真心夸、整段聊得高兴的收尾",
+      "png_ready": false,
+      "size_kb": 692,
+      "emotion": "开心"
+    },
+    {
+      "file": "import25/19_开心_大肥鱼_9N11_笑.gif",
+      "scene": "开心",
+      "label": "开心",
+      "when": "事情顺了、被真心夸、整段聊得高兴的收尾",
+      "png_ready": false,
+      "size_kb": 702,
+      "emotion": "开心"
+    },
+    {
+      "file": "import25/20_开心_大肥鱼_10N07_杂技猫.gif",
+      "scene": "开心",
+      "label": "开心",
+      "when": "事情顺了、被真心夸、整段聊得高兴的收尾",
+      "png_ready": false,
+      "size_kb": 968,
+      "emotion": "开心"
+    },
+    {
+      "file": "import25/21_开心_大肥鱼_11N05_被窝哈哈.gif",
+      "scene": "开心",
+      "label": "开心",
+      "when": "事情顺了、被真心夸、整段聊得高兴的收尾",
+      "png_ready": false,
+      "size_kb": 1311,
+      "emotion": "开心"
+    },
+    {
+      "file": "import25/22_开心_大肥鱼_2N03_硬币.gif",
+      "scene": "开心",
+      "label": "开心",
+      "when": "事情顺了、被真心夸、整段聊得高兴的收尾",
+      "png_ready": false,
+      "size_kb": 1464,
+      "emotion": "开心"
+    },
+    {
+      "file": "import25/23_吃瓜围观_大肥鱼_5N05_吃瓜.gif",
+      "scene": "吃瓜围观",
+      "label": "搞怪",
+      "when": "两人对话里路过、群里在吵不想站队，低概率插一张",
+      "png_ready": false,
+      "size_kb": 1517,
+      "emotion": "搞怪"
+    },
+    {
+      "file": "import25/24_吃瓜围观_大肥鱼_10N05_怎么个事.gif",
+      "scene": "吃瓜围观",
+      "label": "搞怪",
+      "when": "两人对话里路过、群里在吵不想站队，低概率插一张",
+      "png_ready": false,
+      "size_kb": 1215,
+      "emotion": "搞怪"
+    },
+    {
+      "file": "import25/25_吃瓜围观_大肥鱼_10N06_鼓捣猫呢.gif",
+      "scene": "吃瓜围观",
+      "label": "搞怪",
+      "when": "两人对话里路过、群里在吵不想站队，低概率插一张",
+      "png_ready": false,
+      "size_kb": 1113,
+      "emotion": "搞怪"
+    }
+  ],
+  "emotions_real": "兴奋/其他/卖萌/哭/喜欢/嘲讽/大笑/安慰/害怕/害羞/开心/得意/思考/惊讶/感谢/打招呼/拒绝/搞怪/无语/生气/疑惑/疲惫/赞同/难过"
+}
