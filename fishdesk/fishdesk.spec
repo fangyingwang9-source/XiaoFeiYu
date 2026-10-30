@@ -40,7 +40,9 @@ exe = EXE(
     debug=False,
     strip=False,
     upx=False,
-    runtime_tmpdir=None,
+    # %TEMP% 受限（ACL/杀软）时 onefile 会报 Could not create temporary directory；
+    # 指到 exe 所在目录（双击时 cwd=exe 目录）可绕开系统 TEMP 的权限问题。
+    runtime_tmpdir=".",
     console=False,
     icon="assets/app.ico",
     uac_admin=False,  # asInvoker：普通启动，需要管理员的操作走 ShellExecuteW(runas)

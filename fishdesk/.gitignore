@@ -6,6 +6,12 @@ dist/
 dist2/
 *.log
 build2.log
+build4/
+dist4/
+build_onedir/
+dist_onedir/
+dist_onedir.zip
+.venv-build/
 shots/
 rt/
 probe_*.py

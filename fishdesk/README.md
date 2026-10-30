@@ -69,16 +69,19 @@ cd fishdesk
 .\build.ps1 -SkipInstall    # 已装好依赖时
 ```
 
-产物：`fishdesk\dist\XiaoFeiYuConsole.exe`（单文件，`uac_admin` 内嵌清单：系统休眠与计划任务必须管理员，否则静默失败）。
+产物：`fishdesk\dist\XiaoFeiYuConsole.exe`（单文件；内嵌清单为 `asInvoker`，双击不弹 UAC，需要管理员的操作由代码 `ShellExecuteW(runas)` 单独提权；另有文件夹版 `dist_onedir\`）。
 
 - 单实例：`Global\XiaoFeiYuConsole_9F3A1` 互斥体 + `127.0.0.1:47731` 兜底，重复启动会激活已有窗口；
 - 资源路径：打包后从 `sys._MEIPASS` 取图标/主题资源，源码态回落到项目目录；
 - 调试时设 `FISHDESK_NO_ELEVATE=1` 可跳过自提升，避免反复弹 UAC。
 
-打包两个坑（已踩过并修好）：
+打包踩过的坑（均已修好）：
 
 1. 页面插件由 `app/plugins/__init__.py` 用 `importlib.import_module` 动态加载，PyInstaller 静态分析看不到；`fishdesk.spec` 里必须 `collect_submodules("app")`，否则冻结后左侧导航空白、右侧没有任何内容（源码态却不报错）；
-2. 单文件包启动时要解包到 `%TEMP%`，若 `%TEMP%` 不可写（受限沙箱、企业策略）会弹 `Could not create temporary directory!`；把 `TEMP`/`TMP` 指到可写目录即可，桌面双击通常无此问题。
+2. （FAQ）双击弹 `Could not create temporary directory!`：单文件包启动时要把内容自解压到 `%TEMP%` 下的 `_MEIxxxxxx`，受限沙箱、企业策略或杀软拦截该目录时会在 Python 代码执行前就失败——所以单纯在 `main.py` 里改 `os.environ["TEMP"]` 没用（bootloader 先解包）。
+   - 已修：`fishdesk.spec` 里 `runtime_tmpdir="."`，解包目录改为 exe 同级（双击时 cwd 即 exe 目录），彻底不依赖 `%TEMP%`；
+   - 验证：把 `TEMP`/`TMP` 指向不可写的 `C:\Windows` 启动，exe 同级仍生成 `_MEIxxxxxx`，`app-launch.log` 记 `temp=C:\Windows` 后约 1 s 出现 `tag=window-ready`；
+   - 仍被拦（杀软隔离 `_MEI*`）：给 exe 所在目录加白名单，或改用文件夹版 `dist_onedir\`（无自解压，启动更快；`dist_onedir.zip` 约 18.9 MB 可直接分发）。
 
 ## 六、安全与已知限制
 
