@@ -30,3 +30,4 @@ desktop.ini
 /wechat-bridge/memory/
 /wechat-bridge/power/*.log
 /wechat-bridge/power/last_*.txt
+/fishdesk/build3/
