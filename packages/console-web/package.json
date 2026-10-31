@@ -1,0 +1,28 @@
+{
+  "name": "@xfy/console-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "小肥鱼控制台：DSH Web 插件 ↔ 本地 bridge-core（状态/启停/人设策略/语音自检）",
+  "type": "commonjs",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings"
+      ],
+      "platform": "web"
+    }
+  }
+}

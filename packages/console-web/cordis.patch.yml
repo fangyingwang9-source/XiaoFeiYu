@@ -1,0 +1,4 @@
+# console-web: 小肥鱼控制台（DSH profile 补丁）
+- insert:
+    - id: console-web
+      name: '@xfy/console-web'

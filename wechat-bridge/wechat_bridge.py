@@ -64,12 +64,7 @@ WARM_WINDOW = 120             # 秒：距自己上一句在这个窗口内 = 还
 JUDGE_ENABLED = True          # 第二级筛子：群内没点名时，偶尔花一次判断决定要不要接话
 JUDGE_COOLDOWN = 180          # 同一群两次判断的最小间隔（秒）
 QUESTION_HINTS = ("？", "?", "吗", "呢", "怎么", "为什么", "哪个", "怎么办", "帮我", "谁", "多少", "是不是")
-HUMAN_STYLE = (
-    "【说话方式】真人微信口气：一条一句 6-18 字，不铺垫、不复述、不列点，逗号最多两个；三句里最多一句带尾巴（呀/啦/哦）；"
-    "正事直接给结论，被催就短句正面回；怼是调味，别每条都顶。\n"
-    "【照这样说】问在干嘛→「在发呆，别烦」｜发无聊的梗→「就这？」｜被夸→「哼，那当然」｜示弱→「这么累啊」\n\n"
-)
-STICKER_HINT = (
+TICKER_HINT = (
     "【表情包】整条只想发图时只写标记 [表情:词]；要配文字就把标记放最后。"
     "可用词：打人 嫌弃 噫 无语 拒绝 生气 嘲讽 得意 害羞 喜欢 卖萌 搞怪 疑惑 思考 开心 大笑 "
     "惊讶 难过 哭 疲惫 赞同 打招呼 感谢 道歉 安慰。\n"
@@ -2545,7 +2540,7 @@ def do_reply(db, wx, state: dict, chat: str, items: list[dict],
         state["after_task"] = time.time()                # v9：忙完这批统一回一次，可以放宽字数
         save_state(state)
     else:
-        reply, new_sid = run_agent(style_head + HUMAN_STYLE + STICKER_HINT + prompt, state.get(sid_key),
+        reply, new_sid = run_agent(style_head + STICKER_HINT + prompt, state.get(sid_key),
                                    read_only=not is_operator)
     # 答非所问兜底：对方问了话、回复却完全没搭上，就重问一次（10 分钟最多一次）
     if reply and not task_line and len(reply.strip()) >= 12:
@@ -2560,7 +2555,7 @@ def do_reply(db, wx, state: dict, chat: str, items: list[dict],
             state.setdefault("askretry", {})[chat] = time.time()
             save_state(state)
             log(f"[{chat}] 回复没搭上问句，重问一次（问句 {q_txt[:30]!r}／原回复 {reply[:30]!r}）")
-            reply2, sid2 = run_agent(style_head + HUMAN_STYLE + STICKER_HINT
+            reply2, sid2 = run_agent(style_head + STICKER_HINT
                                      + "（上一版答偏了，直接回这句：" + q_txt + "）\n" + prompt,
                                      state.get(sid_key), read_only=not is_operator)
             if reply2:
@@ -2759,7 +2754,7 @@ def play_dice(db, wx, state: dict, chat: str, self_wxid: str) -> bool:
     )
     line = ""
     try:
-        reply, _sid = run_agent(HUMAN_STYLE + prompt, state.get("chat_session_id"), read_only=True)
+        reply, _sid = run_agent(prompt, state.get("chat_session_id"), read_only=True)
         first = plain_text(reply or "").splitlines()
         line = first[0].strip() if first else ""
     except Exception as exc:
@@ -2784,7 +2779,23 @@ def play_dice(db, wx, state: dict, chat: str, self_wxid: str) -> bool:
     return True
 
 
+def _start_control_service():
+    """在桥进程内挂 bridge-core 控制服务（本机回环，失败绝不影响桥）。"""
+    try:
+        core_dir = HERE.parent / "packages" / "bridge-core"
+        if core_dir.is_dir() and str(core_dir) not in sys.path:
+            sys.path.insert(0, str(core_dir))
+        import service as _core_service
+
+        srv = _core_service.serve()
+        threading.Thread(target=srv.serve_forever, name="bridge-core", daemon=True).start()
+        log(f"bridge-core 控制服务：http://127.0.0.1:{_core_service.PORT}")
+    except Exception as exc:
+        log(f"bridge-core 控制服务未启动：{type(exc).__name__}: {exc}")
+
+
 def main() -> int:
+    _start_control_service()
     if not acquire_single_instance_lock():
         return 0
     ap = argparse.ArgumentParser()

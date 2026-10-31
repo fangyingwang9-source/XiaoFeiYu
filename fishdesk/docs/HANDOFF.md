@@ -4,7 +4,7 @@
 
 ## 1. 一句话现状
 
-桌面控制台「小肥鱼控制台」(fishdesk) 已完成三页重构（控制台/人设/回复策略），配置统一写 `wechat-bridge/config.json`，微信桥热加载生效；新包已构建并替换 dist。**代码已提交并推到 GitHub（`main` 干净，仅剩无关的 `diary-core.md` 改动）**。控制台当前**未在运行**，桥在运行（`bridge.pid` = 8196）。
+桌面控制台「小肥鱼控制台」(fishdesk) 已完成三页重构（控制台/人设/回复策略），配置统一写 `wechat-bridge/config.json`，微信桥热加载生效；新包已构建并替换 dist。**代码本地已提交（HUMAN_STYLE 移除等改动见 git log），远端推送需确认凭据 `git:https://github.com` 存在
 
 ## 2. 仓库结构
 

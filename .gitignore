@@ -39,3 +39,16 @@ desktop.ini
 /wechat-bridge/persona-backups/
 /fishdesk/_out.txt
 /fishdesk/_err.txt
+packages/bridge-core/vendor/
+packages/bridge-core/models/
+packages/bridge-core/out/
+!/packages/
+!/packages/**
+fishdesk/_cred.txt
+packages/**/__pycache__/
+packages/**/*.py[cod]
+packages/**/vendor/
+packages/**/models/
+packages/**/out/
+packages/**/__pycache__/
+packages/**/*.py[cod]
