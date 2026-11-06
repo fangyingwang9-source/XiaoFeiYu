@@ -38,7 +38,7 @@ function NextOccurrence([string]$hhmm) {
     return $t
 }
 
-# 唤醒时段来自统一配置（config.json 的 schedule.wake_slots），不再写死 09:00 / 20:30
+# 唤醒时段来自统一配置（config.json 的 schedule.wake_slots），不写死具体时间
 $slots = @()
 foreach ($cfgPath in @((Join-Path $here '..\config.json'), (Join-Path $here 'config.json'))) {
     if (-not (Test-Path -LiteralPath $cfgPath)) { continue }
@@ -54,10 +54,10 @@ foreach ($cfgPath in @((Join-Path $here '..\config.json'), (Join-Path $here 'con
 }
 $slots = @($slots | ForEach-Object { ([string]$_).Trim() } | Where-Object { $_ -match '^\d{1,2}:\d{2}$' } | Select-Object -Unique)
 if ($slots.Count -eq 0) {
-    $slots = @('09:00', '20:30')
-    Log 'wake_slots 未配置，回退默认 09:00 / 20:30'
+    $slots = @('09:20')
+    Log 'wake_slots 未配置，回退默认 09:20'
 }
-$desc = 'DSH 定时唤醒 ' + ($slots -join ' / ') + '；唤醒后自愈并启动 30 分钟无消息看门狗'
+$desc = 'DSH 定时唤醒 ' + ($slots -join ' / ') + '；唤醒后自愈并投递问候'
 $trigXml = ($slots | ForEach-Object {
     $d = NextOccurrence $_
     Log ('trigger ' + $d.ToString('yyyy-MM-dd HH:mm:ss'))

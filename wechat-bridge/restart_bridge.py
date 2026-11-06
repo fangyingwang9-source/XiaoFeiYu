@@ -81,9 +81,13 @@ def bridge_alive() -> bool:
     return bool(img) and img.lower().endswith(("python.exe", "pythonw.exe"))
 
 
-def queue_note(text: str, to: str = "分不清大小王") -> None:
+def queue_note(text: str, to: str = "文件传输助手") -> None:
     import json
 
+    # 重启不该往群里报备（旧版每次重启都往真群发一条，还因 .ps1 被按 GBK 解析变成乱码）。
+    # 现在默认不发，需要时显式 BRIDGE_RESTART_NOTE=1。
+    if os.environ.get("BRIDGE_RESTART_NOTE", "0") != "1":
+        return
     try:
         with open(HERE / "outbox.jsonl", "a", encoding="utf-8", newline="\n") as f:
             f.write(json.dumps({"to": to, "text": text}, ensure_ascii=False) + "\n")

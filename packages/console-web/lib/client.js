@@ -44,6 +44,58 @@ window.__ModuleLoader__.load({
 			});
 		}
 
+		const PERSONA_FIELDS = [
+			["nickname", "称呼"],
+			["identity", "身份"],
+			["base", "性格底色"],
+			["quirks", "口头禅与怪癖"],
+			["examples", "示例反应"],
+			["redlines", "红线（绝不做的）"]
+		];
+
+		function profileToText(profile) {
+			if (!profile) return "";
+			if (typeof profile === "string") return profile;
+			const known = PERSONA_FIELDS.filter(([k]) => typeof profile[k] === "string" && profile[k].trim());
+			if (known.length) {
+				return known.map(([k, l]) => "【" + l + "】\n" + String(profile[k]).trim()).join("\n\n");
+			}
+			return Object.entries(profile)
+				.filter(([, v]) => typeof v === "string" && v.trim())
+				.map(([k, v]) => "【" + k + "】\n" + v.trim())
+				.join("\n\n");
+		}
+
+		function textToProfile(text) {
+			const out = {};
+			const src = String(text || "");
+			const re = /^【(.+?)】\s*$/gm;
+			const marks = [];
+			let m;
+			while ((m = re.exec(src))) marks.push({ label: m[1].trim(), start: m.index, bodyStart: re.lastIndex });
+			if (!marks.length) {
+				if (src.trim()) out.base = src.trim();
+				return out;
+			}
+			marks.forEach((mk, i) => {
+				const end = i + 1 < marks.length ? marks[i + 1].start : src.length;
+				const hit = PERSONA_FIELDS.find(([, l]) => l === mk.label);
+				if (hit) out[hit[0]] = src.slice(mk.bodyStart, end).trim();
+			});
+			return out;
+		}
+
+		const STRATEGY_FIELDS = [
+			["max_reply_chars", "单条上限（字）", "一条回复最多这么多字，超出会拆成多条气泡"],
+			["reply_chars_min", "常规最短（字）", "低于这个字数容易显得敷衍，一般 6"],
+			["reply_chars_max", "常规最长（字）", "超过就切成短句，一般 18"],
+			["bubble_max", "气泡合计上限（字）", "连发好几条时加起来的字数上限"],
+			["bubble_parts", "最多气泡条数", "一次回复最多拆成几条消息"],
+			["tease_every", "毒舌频率（次）", "每 N 次回复怼一句，0 表示不怼"],
+			["active_window", "活跃窗口（秒）", "对方读完多久内还算连着聊"],
+			["cooldown", "冷却（秒）", "回完一条后至少隔这么久再回下一条"]
+		];
+
 		function ConsolePanel() {
 			const [status, setStatus] = React.useState(null);
 			const [cfg, setCfg] = React.useState(null);
@@ -61,7 +113,7 @@ window.__ModuleLoader__.load({
 						const c = await api("config");
 						if (c && c.ok) {
 							setCfg(c.config);
-							setPersona(((c.config.persona || {}).profile) || "");
+							setPersona(profileToText((c.config.persona || {}).profile));
 							setStrategy({ ...(c.config.strategy || {}) });
 						}
 					}
@@ -129,30 +181,33 @@ window.__ModuleLoader__.load({
 					key: "t",
 					value: persona,
 					onChange: (e) => setPersona(e.target.value),
-					rows: 5,
+					rows: 8,
 					style: { ...input, width: "100%", resize: "vertical", lineHeight: 1.6, boxSizing: "border-box" }
-				})
+				}),
+				h("div", { key: "n", style: { fontSize: 11, opacity: 0.6, marginTop: 6 } }, "按【称呼】【身份】…分段编辑；保存后写回 config.json 并重新生成 persona.md")
 			]);
 
-			const keys = ["max_reply_chars", "reply_chars_min", "reply_chars_max", "tease_every"];
 			const strategyBox = h("div", { style: card }, [
 				h("div", { key: "h", style: { fontSize: 13, fontWeight: 600, marginBottom: 8 } }, "回复策略"),
-				h("div", { style: row }, keys.map((k) => h("label", { key: k, style: { ...row, gap: 6 } }, [
-					h("span", { key: "l", style: { ...label, minWidth: 0 } }, k),
-					h("input", {
-						key: "i",
-						type: "number",
-						value: strategy[k] === undefined ? "" : strategy[k],
-						onChange: (e) => setStrategy({ ...strategy, [k]: Number(e.target.value) }),
-						style: { ...input, width: 92 }
-					})
-				]))),
+				h("div", { style: { display: "grid", gap: 8 } }, STRATEGY_FIELDS.map(([k, name, hint]) =>
+					h("div", { key: k, style: { ...row, alignItems: "baseline" } }, [
+						h("span", { key: "l", style: { ...label, minWidth: 132, opacity: 0.9 } }, name),
+						h("input", {
+							key: "i",
+							type: "number",
+							value: strategy[k] === undefined ? "" : strategy[k],
+							onChange: (e) => setStrategy({ ...strategy, [k]: Number(e.target.value) }),
+							style: { ...input, width: 88 }
+						}),
+						h("span", { key: "h", style: { fontSize: 11, opacity: 0.55 } }, hint)
+					])
+				)),
 				h("div", { key: "save", style: { ...row, marginTop: 12 } }, [
 					h("button", {
 						key: "s",
 						style: btn(true),
 						disabled: !!busy || !coreOk,
-						onClick: () => run("config.save", { persona: { profile: persona }, strategy }, "save")
+						onClick: () => run("config.save", { persona: { profile: textToProfile(persona) }, strategy }, "save")
 					}, busy === "save" ? "保存中…" : "保存到桥配置"),
 					h("span", { key: "n", style: { fontSize: 12, opacity: 0.65 } }, "写回 wechat-bridge/config.json，桥自动热加载")
 				])

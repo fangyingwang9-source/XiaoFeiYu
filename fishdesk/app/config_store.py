@@ -74,17 +74,11 @@ DEFAULTS: dict[str, Any] = {
         "judge_cooldown": 180,
     },
     "schedule": {
-        "wake_slots": ["09:00", "20:30"],
+        "wake_slots": ["09:20"],
         "allow_wechat_sleep": True,
         "sleep_triggers": ["休眠", "睡觉", "睡吧", "去睡"],
         "owner_only": True,
-        "idle_sleep_minutes": 30,
-        "input_grace_minutes": 10,
-        "max_defer_minutes": 120,
-        "respect_input": True,
         "notify_on_wake": True,
-        "greeting_morning": "早安",
-        "greeting_evening": "晚上好",
     },
     "advanced": {
         "diary_enabled": True,
@@ -154,13 +148,7 @@ class ConfigStore:
                 old = json.loads(legacy.read_text(encoding="utf-8-sig"))
                 s = cfg["schedule"]
                 s["wake_slots"] = list(old.get("wake_slots") or s["wake_slots"])
-                s["idle_sleep_minutes"] = int(old.get("idle_minutes", s["idle_sleep_minutes"]))
-                s["respect_input"] = bool(old.get("respect_input", s["respect_input"]))
-                s["input_grace_minutes"] = int(old.get("input_grace_minutes", s["input_grace_minutes"]))
-                s["max_defer_minutes"] = int(old.get("max_defer_minutes", s["max_defer_minutes"]))
                 s["notify_on_wake"] = bool(old.get("notify_on_wake", s["notify_on_wake"]))
-                s["greeting_morning"] = old.get("greeting_morning") or s["greeting_morning"]
-                s["greeting_evening"] = old.get("greeting_evening") or s["greeting_evening"]
                 if old.get("owner_wxid"):
                     cfg["identity"]["owner_wxid"] = old["owner_wxid"]
             except Exception:
@@ -259,13 +247,7 @@ class ConfigStore:
         ident = self.data.get("identity", {})
         legacy = {
             "ssid": s.get("ssid", "Xiaomi_9FE2"),
-            "idle_minutes": s.get("idle_sleep_minutes", 30),
-            "respect_input": bool(s.get("respect_input", True)),
-            "input_grace_minutes": s.get("input_grace_minutes", 10),
-            "max_defer_minutes": s.get("max_defer_minutes", 120),
             "notify_on_wake": bool(s.get("notify_on_wake", True)),
-            "greeting_morning": s.get("greeting_morning", ""),
-            "greeting_evening": s.get("greeting_evening", ""),
             "wake_slots": list(s.get("wake_slots") or []),
             "owner_wxid": ident.get("owner_wxid", ""),
         }

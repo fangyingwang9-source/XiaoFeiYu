@@ -1,5 +1,5 @@
-﻿# on-wake.ps1 - 睡眠/休眠恢复后的自愈 + 30 分钟无人消息自动睡回去
-# 由计划任务 DSH-Power-Wake（09:00 / 20:30，WakeToRun）或自测任务调用。
+﻿# on-wake.ps1 - 睡眠/休眠恢复后的自愈 + 写唤醒问候（问候由桥发语音）
+# 由计划任务 DSH-Power-Wake（09:20，WakeToRun）或自测任务调用。
 [CmdletBinding()]
 param(
     [string]$Slot = 'manual',
@@ -14,7 +14,7 @@ $bridge = Split-Path -Parent $here
 $log    = Join-Path $here 'on-wake.log'
 $cfg    = $null
 try { $cfg = Get-Content -LiteralPath (Join-Path $here 'config.json') -Raw -Encoding UTF8 | ConvertFrom-Json } catch {}
-if (-not $cfg) { $cfg = [pscustomobject]@{ ssid='Xiaomi_9FE2'; idle_minutes=30; respect_input=$true; input_grace_minutes=10; max_defer_minutes=120; notify_on_wake=$true } }
+if (-not $cfg) { $cfg = [pscustomobject]@{ ssid='Xiaomi_9FE2'; notify_on_wake=$true } }
 
 function Log([string]$m) {
     Add-Content -LiteralPath $log -Value ('{0} [{1}] {2}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $Slot, $m) -Encoding UTF8
@@ -109,26 +109,12 @@ if ($Notify -and $cfg.notify_on_wake) {
             $h = (Get-Date).Hour
             if ($FakeHour -ge 0) { $h = $FakeHour }
             if ($h -ge 5 -and $h -lt 12) { $text = [string]$cfg.greeting_morning }
-            elseif ($h -ge 18) { $text = [string]$cfg.greeting_evening }
             if (-not $text) { $text = "醒了（" + (Get-Date -Format 'HH:mm') + "）" }
         }
         Set-Content -LiteralPath (Join-Path $here 'notify.txt') -Value $text -Encoding UTF8
         Log ("已写 notify.txt: " + $text)
     } catch { Log ("写 notify.txt 失败: " + $_.Exception.Message) }
 }
-
-# ---------- 7. 启动 30 分钟无人消息看门狗 ----------
-try {
-    $wakeTs = [DateTimeOffset]::Now.ToUnixTimeSeconds()
-    $a = @('-NoProfile','-ExecutionPolicy','Bypass','-WindowStyle','Hidden','-File',(Join-Path $here 'idle-watcher.ps1'),
-           '-WakeEpoch', $wakeTs,
-           '-Minutes', [string]$cfg.idle_minutes,
-           '-RespectInput', [string]$cfg.respect_input,
-           '-InputGraceMinutes', [string]$cfg.input_grace_minutes,
-           '-MaxDeferMinutes', [string]$cfg.max_defer_minutes)
-    Start-Process -FilePath 'powershell.exe' -ArgumentList $a -WindowStyle Hidden
-    Log ("已启动 idle-watcher（" + $cfg.idle_minutes + " 分钟无消息则睡回去）")
-} catch { Log ("启动 idle-watcher 失败: " + $_.Exception.Message) }
 
 Log 'on-wake 完成'
 exit 0

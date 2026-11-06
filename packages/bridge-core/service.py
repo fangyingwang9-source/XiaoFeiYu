@@ -9,6 +9,7 @@ Contract (all JSON):
   POST /tts             -> {ok, path, duration_ms, provider, voice}
   POST /asr             -> {ok, text}                      body {"path": "..."}
   POST /voice/loopback  -> {ok, asr_text, tts_path, ...}    synthesize -> decode -> recognize
+  POST /voice/send      -> {ok, sent, hold_s, steps}         text/audio -> 注入 -> 按住&松开右 Alt 发语音
   GET  /config          -> persona/strategy snapshot
   POST /config          -> merge + persist to wechat-bridge/config.json (with backup)
 """
@@ -30,8 +31,10 @@ OUT_DIR = os.path.join(HERE, "out")
 VENDOR = os.path.join(HERE, "vendor")
 PORT = int(os.environ.get("BRIDGE_CORE_PORT", "8787"))
 
-if VENDOR not in sys.path:
-    sys.path.insert(0, VENDOR)
+ADAPTER_DIR = os.path.join(ROOT, "packages", "wechat-adapter")
+for _extra in (VENDOR, ADAPTER_DIR):
+    if _extra not in sys.path:
+        sys.path.insert(0, _extra)
 
 from voice.tts import default_out_path, get_provider  # noqa: E402
 
@@ -47,6 +50,22 @@ def _get_asr():
 
             _asr = SenseVoiceASR()
         return _asr
+
+
+_ear = None
+_ear_lock = threading.Lock()
+
+
+def _get_ear():
+    """语音接收（耳朵）单例：适配层负责监听，这里只做转码/识别/日志。"""
+    global _ear
+    with _ear_lock:
+        if _ear is None:
+            from factory import get_adapter  # wechat-adapter 工厂
+            from voice.listener import VoiceListener
+
+            _ear = VoiceListener(adapter=get_adapter(), asr=_get_asr())
+        return _ear
 
 
 def _read_json(path: str, default=None):
@@ -139,6 +158,7 @@ class Handler(BaseHTTPRequestHandler):
                 "bridge": _bridge_status(),
                 "asr": {"provider": "sensevoice-int8", "ready": _get_asr().ready(), "model_dir": _get_asr().model_dir},
                 "tts": {"provider": cfg["provider"], "voice": cfg["voice"], "voices": get_provider("edge").voices()},
+                "voice": _voice_status(cfg),
             })
         if self.path.split("?")[0] == "/config":
             return self._send(200, {"ok": True, "config": _public_config()})
@@ -174,12 +194,57 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"ok": True, "input": text, "asr_text": asr_text,
                                         "tts_path": res.path, "duration_ms": res.duration_ms,
                                         "asr_ms": int((time.time() - t0) * 1000)})
+            if path == "/voice/send":
+                from voice.sender import send_voice
+
+                who = (body.get("to") or "文件传输助手").strip()
+                text = (body.get("text") or "").strip()
+                audio = (body.get("path") or "").strip()
+                if not text and not (audio and os.path.isfile(audio)):
+                    return self._send(400, {"ok": False, "error": "need_text_or_path"})
+                return self._send(200, send_voice(who, text=text or None, audio_path=audio or None,
+                                                  rate=body.get("rate") or None))
+            if path == "/voice/in/status":
+                return self._send(200, {"ok": True, **_get_ear().status()})
+            if path == "/voice/in/start":
+                ear = _get_ear()
+                started = ear.start()
+                return self._send(200, {"ok": True, "started": started, **ear.status()})
+            if path == "/voice/in/stop":
+                ear = _get_ear()
+                ear.stop()
+                return self._send(200, {"ok": True, **ear.status()})
+            if path == "/voice/in/log":
+                n = int(body.get("n") or 20)
+                ear = _get_ear()
+                return self._send(200, {"ok": True, "records": ear.records[-n:], "log_path": ear.log_path})
             if path == "/config":
                 return self._send(200, _save_config(body))
         except Exception as exc:  # noqa: BLE001
             return self._send(500, {"ok": False, "error": type(exc).__name__, "detail": str(exc),
                                     "trace": traceback.format_exc().splitlines()[-3:]})
         return self._send(404, {"ok": False, "error": "not_found"})
+
+
+def _feeder_name(configured) -> str:
+    """报实际会用的声道（和 sender 的选择逻辑一致），只做轻量可用性判断。"""
+    if configured:
+        return str(configured)
+    try:
+        from voice.feeders import VirtualCableFeeder
+
+        return "virtual-cable" if VirtualCableFeeder().available() else "speaker-loopback"
+    except Exception:  # noqa: BLE001
+        return "speaker-loopback"
+
+
+def _voice_status(cfg: dict) -> dict:
+    """只回配置层面的状态，不做 UIA 扫描（/status 会被控制台高频轮询）。"""
+    c = _read_json(CONFIG_PATH, {}) or {}
+    voice = c.get("voice") or {}
+    return {"adapter": os.environ.get("WECHAT_ADAPTER").strip().lower() if os.environ.get("WECHAT_ADAPTER") else "wx4",
+            "feeder": _feeder_name(voice.get("feeder")),
+            "tts": cfg["provider"]}
 
 
 def _public_config() -> dict:
@@ -217,6 +282,12 @@ def _save_config(patch: dict) -> dict:
 def serve(host: str = "127.0.0.1", port: int = 8787):
     httpd = ThreadingHTTPServer((host, port), Handler)
     httpd.daemon_threads = True
+    cfg = _read_json(CONFIG_PATH, {}) or {}
+    if os.environ.get("XFY_EAR") == "1" or (cfg.get("voice") or {}).get("voice_input"):
+        try:
+            _get_ear().start()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[ear] autostart failed: {type(exc).__name__}: {exc}", flush=True)
     return httpd
 
 

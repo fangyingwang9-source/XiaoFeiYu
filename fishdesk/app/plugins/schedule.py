@@ -31,7 +31,7 @@ class SchedulePage(BasePage):
         self.slot_box = ctk.CTkFrame(wake, fg_color="transparent")
         self.slot_box.grid(row=wake.body_row, column=0, sticky="ew", padx=16, pady=(10, 4))
         self.slot_box.grid_columnconfigure(0, weight=1)
-        for t in (s.get("wake_slots") or ["09:00"]):
+        for t in (s.get("wake_slots") or ["09:20"]):
             self._add_slot_row(t)
         bar = ctk.CTkFrame(wake, fg_color="transparent")
         bar.grid(row=wake.body_row + 1, column=0, sticky="ew", padx=16, pady=(6, 14))
@@ -40,6 +40,9 @@ class SchedulePage(BasePage):
         self.next_label = ctk.CTkLabel(bar, text="", font=ctk.CTkFont(theme.FONT, 11),
                                        text_color=theme.FG_MUTED)
         self.next_label.pack(side="left", padx=(14, 0))
+        self.sw_notify = SwitchRow(wake, "唤醒后发一条问候", s.get("notify_on_wake", True),
+                                   command=lambda v: self.autosave("schedule.notify_on_wake", v))
+        self.sw_notify.grid(row=wake.body_row + 2, column=0, sticky="ew", padx=16, pady=(0, 14))
 
         trig = self.section("「去睡觉」口令", "只有主人 wxid 发这几个词才会真睡，别人说当没看见")
         self.sw_allow = SwitchRow(trig, "允许微信口令休眠", s.get("allow_wechat_sleep", True),
@@ -55,34 +58,10 @@ class SchedulePage(BasePage):
                                   command=lambda v: self.autosave("schedule.owner_only", v))
         self.sw_owner.grid(row=trig.body_row + 2, column=0, sticky="ew", padx=16, pady=(4, 14))
 
-        idle = self.section("空闲兜底", "以上条件按「先到先算」叠加，respect_input 会看键鼠活动")
-        self.entry_idle = EntryRow(idle, "空闲多久自动睡（分钟）", str(s.get("idle_sleep_minutes", 30)),
-                                   width=110, command=lambda v: self._num("schedule.idle_sleep_minutes", v, 3, 600))
-        self.entry_idle.grid(row=idle.body_row, column=0, sticky="ew", padx=16, pady=(10, 6))
-        self.entry_grace = EntryRow(idle, "刚有操作则顺延（分钟）", str(s.get("input_grace_minutes", 10)),
-                                    width=110, command=lambda v: self._num("schedule.input_grace_minutes", v, 0, 120))
-        self.entry_grace.grid(row=idle.body_row + 1, column=0, sticky="ew", padx=16, pady=(4, 6))
-        self.entry_defer = EntryRow(idle, "最多顺延（分钟）", str(s.get("max_defer_minutes", 120)),
-                                    width=110, command=lambda v: self._num("schedule.max_defer_minutes", v, 0, 720))
-        self.entry_defer.grid(row=idle.body_row + 2, column=0, sticky="ew", padx=16, pady=(4, 6))
-        self.sw_respect = SwitchRow(idle, "尊重键鼠活动", s.get("respect_input", True),
-                                    command=lambda v: self.autosave("schedule.respect_input", v))
-        self.sw_respect.grid(row=idle.body_row + 3, column=0, sticky="ew", padx=16, pady=(4, 6))
-        self.sw_notify = SwitchRow(idle, "唤醒时发问候", s.get("notify_on_wake", True),
-                                   command=lambda v: self.autosave("schedule.notify_on_wake", v))
-        self.sw_notify.grid(row=idle.body_row + 4, column=0, sticky="ew", padx=16, pady=(4, 6))
-        self.entry_morning = EntryRow(idle, "早安语", s.get("greeting_morning", "早安"), width=260,
-                                      command=lambda v: self.autosave("schedule.greeting_morning", v))
-        self.entry_morning.grid(row=idle.body_row + 5, column=0, sticky="ew", padx=16, pady=(4, 6))
-        self.entry_evening = EntryRow(idle, "晚安语", s.get("greeting_evening", "晚上好"), width=260,
-                                      command=lambda v: self.autosave("schedule.greeting_evening", v))
-        self.entry_evening.grid(row=idle.body_row + 6, column=0, sticky="ew", padx=16, pady=(4, 14))
-
         test = self.section("立刻验证", "点击后 3 秒进入睡眠，唤醒依赖上面的计划任务或手动开机")
         bar2 = ctk.CTkFrame(test, fg_color="transparent")
         bar2.grid(row=test.body_row, column=0, sticky="ew", padx=16, pady=(10, 6))
         primary_button(bar2, "立即休眠", self._sleep_now, danger=True).pack(side="left")
-        ghost_button(bar2, "停止看门狗", self._stop_watcher, width=120).pack(side="left", padx=(8, 0))
         ghost_button(bar2, "查看状态", self._status, width=100).pack(side="left", padx=(8, 0))
         self.status_label = ctk.CTkLabel(test, text="", font=ctk.CTkFont(theme.FONT, 11),
                                          text_color=theme.FG_MUTED, anchor="w", justify="left",
@@ -145,14 +124,6 @@ class SchedulePage(BasePage):
         if not ok:
             mb.showwarning("应用计划任务", msg, parent=self)
 
-    def _num(self, dotted: str, raw: str, lo: int, hi: int) -> None:
-        try:
-            v = int(str(raw).strip())
-        except Exception:
-            self.ctx.toast("请输入整数分钟")
-            return
-        self.autosave(dotted, max(lo, min(hi, v)))
-
     # ---------- 动作 ----------
     def _sleep_now(self) -> None:
         if not mb.askyesno("立即休眠", "马上让电脑睡眠？3 秒后执行。", parent=self):
@@ -160,14 +131,10 @@ class SchedulePage(BasePage):
         ok, msg = self.ctx.power.sleep_now("gui-manual", delay=3)
         self.ctx.toast(msg)
 
-    def _stop_watcher(self) -> None:
-        self.ctx.toast(self.ctx.power.stop_watcher())
-
     def _status(self) -> None:
         st = self.ctx.power.status()
         self.status_label.configure(
-            text=f"上次睡眠：{st.get('last_sleep') or '无'}    上次唤醒：{st.get('last_wake') or '无'}    "
-                 f"看门狗 PID：{st.get('watcher_pid') or '未运行'}")
+            text=f"上次睡眠：{st.get('last_sleep') or '无'}    上次唤醒：{st.get('last_wake') or '无'}")
 
     def on_show(self) -> None:
         self._status()

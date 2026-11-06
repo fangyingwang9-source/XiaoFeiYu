@@ -42,8 +42,7 @@
   },
   "schedule": {
     "wake_slots": [
-      "09:00",
-      "20:30"
+      "09:20"
     ],
     "allow_wechat_sleep": true,
     "sleep_triggers": [
@@ -53,13 +52,7 @@
       "去睡"
     ],
     "owner_only": true,
-    "idle_sleep_minutes": 30,
-    "input_grace_minutes": 10,
-    "max_defer_minutes": 120,
-    "respect_input": true,
-    "notify_on_wake": true,
-    "greeting_morning": "早安",
-    "greeting_evening": "晚上好"
+    "notify_on_wake": true
   },
   "advanced": {
     "diary_enabled": true,

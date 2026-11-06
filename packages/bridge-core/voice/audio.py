@@ -6,6 +6,7 @@ through soundfile. Resampling is linear interpolation (good enough for ASR).
 from __future__ import annotations
 
 import os
+import shutil
 import tempfile
 import wave
 
@@ -15,15 +16,34 @@ TARGET_RATE = 16000
 
 
 def silk_to_pcm(path: str, sample_rate: int = 24000) -> tuple[bytes, int]:
-    """Decode a WeChat .silk file to raw 16-bit PCM. Returns (pcm, rate)."""
+    """Decode a WeChat .silk file to raw 16-bit PCM. Returns (pcm, rate).
+
+    pilk 0.2.4 only accepts file paths (its decode() signature is
+    decode(silk_path, pcm_path, pcm_rate)), so bytes always go through a
+    throwaway temp dir.
+    """
     import pilk
 
-    with open(path, "rb") as fh:
-        raw = fh.read()
-    result = pilk.decode(raw, sample_rate)
-    if isinstance(result, tuple):
-        return result[0], int(result[1])
-    return result, sample_rate
+    tmpdir = tempfile.mkdtemp(prefix="xfy-silk-")
+    pcm_path = os.path.join(tmpdir, "out.pcm")
+    try:
+        pilk.decode(path, pcm_path, pcm_rate=sample_rate)
+        with open(pcm_path, "rb") as fh:
+            return fh.read(), sample_rate
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+
+def silk_bytes_to_pcm(raw: bytes, sample_rate: int = 24000) -> tuple[bytes, int]:
+    """Same as silk_to_pcm but for the SILK bytes stored inside WeChat DBs."""
+    tmpdir = tempfile.mkdtemp(prefix="xfy-silk-")
+    try:
+        silk_path = os.path.join(tmpdir, "in.silk")
+        with open(silk_path, "wb") as fh:
+            fh.write(raw)
+        return silk_to_pcm(silk_path, sample_rate)
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 def pcm_to_wav(pcm: bytes, rate: int, out_path: str) -> str:

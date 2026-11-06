@@ -51,8 +51,4 @@ if ($now.Count -eq 0) {
     if (Test-Path (Join-Path $bridge "console.log")) {
         Get-Content (Join-Path $bridge "console.log") -Tail 15 -Encoding UTF8 | Out-File -FilePath $log -Append -Encoding utf8
     }
-} elseif ($killed -gt 0) {
-    $line = '{"to": "分不清大小王", "text": "重启完了，这回应该正常了"}'
-    [System.IO.File]::WriteAllText((Join-Path $bridge "outbox.jsonl"), $line + "`n", (New-Object System.Text.UTF8Encoding($false)))
-    Note "outbox queued"
 }

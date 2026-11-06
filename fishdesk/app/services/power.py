@@ -91,35 +91,14 @@ class PowerService:
         return ok, ("应用成功：\n" + "\n".join(msg) if ok else "应用失败：\n" + "\n".join(msg))
 
     def status(self) -> dict:
-        info = {"last_sleep": "", "last_wake": "", "watcher_pid": 0, "watcher_alive": False}
+        info = {"last_sleep": "", "last_wake": ""}
         for key, name in (("last_sleep", "last_sleep.txt"), ("last_wake", "last_wake.txt")):
             p = self.dir / name
             try:
                 info[key] = p.read_text(encoding="utf-8-sig").strip()[:40]
             except Exception:
                 pass
-        try:
-            pid = int((self.dir / "idle-watcher.pid").read_text(encoding="utf-8-sig").strip())
-            info["watcher_pid"] = pid
-            try:
-                import psutil
-                info["watcher_alive"] = psutil.pid_exists(pid)
-            except Exception:
-                info["watcher_alive"] = False
-        except Exception:
-            pass
         return info
-
-    def stop_watcher(self) -> str:
-        pid = self.status().get("watcher_pid") or 0
-        if not pid:
-            return "没有看门狗在跑"
-        try:
-            subprocess.run(["taskkill", "/PID", str(pid), "/F"], capture_output=True,
-                           timeout=8, creationflags=NO_WINDOW)
-            return f"已结束看门狗 PID {pid}"
-        except Exception as exc:
-            return f"结束失败：{exc}"
 
     def next_wake_text(self, slots: list[str]) -> str:
         if not slots:
